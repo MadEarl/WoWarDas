@@ -10,11 +10,13 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.provider.Settings
 import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import kotlin.system.exitProcess
 
 private const val PERMISSION_REQUEST = 10
 
@@ -23,6 +25,26 @@ class MainActivity : AppCompatActivity(), LocationListener {
     lateinit var locationManager: LocationManager
     private var hasGps = false
     private lateinit var tvGpsLocation: TextView
+    private lateinit var myLocation: Location
+    private var gotLocation: (Boolean) = false
+    private var timesover: (Boolean) = false
+
+    // If button is tapped within running time, alternate view ist triggered instead of write and exit
+    private val taptimer = object : CountDownTimer(7000, 1000) {
+        override fun onTick(millisUntilFinished: Long) {}
+        override fun onFinish() {
+            timesover = true
+        }
+    }
+
+    // Show GPS coordinates for this time, then exit if button not tapped
+    private val endtimer = object : CountDownTimer(5000, 1000) {
+        override fun onTick(millisUntilFinished: Long) {}
+        override fun onFinish() {
+            this@MainActivity.finish()
+            exitProcess(0)
+        }
+    }
 
     private var permissions = arrayOf(
         Manifest.permission.ACCESS_FINE_LOCATION,
@@ -74,13 +96,13 @@ class MainActivity : AppCompatActivity(), LocationListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        // val textView = TextView(this)
-        // textView.text = "GPS Location"
+        taptimer.start()
         tvGpsLocation = findViewById(R.id.txt_location)!!
         tvGpsLocation.text = "GPS Location:\n"
-        //val txtLocation = setContentView(tvGpsLocation)
+
         if (checkPermission(permissions)) {
-            getLocation()
+            if (!gotLocation)
+                getLocation()
         } else {
             requestPermissions(permissions, PERMISSION_REQUEST)
         }
@@ -100,9 +122,12 @@ class MainActivity : AppCompatActivity(), LocationListener {
 
     override fun onLocationChanged(location: Location) {
         // tvGpsLocation = findViewById(R.id.txt_location)
-        tvGpsLocation.append("\nBreitengrad: " + location.latitude + "\nLängengrad: " + location.longitude)
+        if (!gotLocation) {
+            tvGpsLocation.append("\nBreitengrad: " + location.latitude + "\nLängengrad: " + location.longitude)
+            myLocation = location
+            gotLocation = true
+            if (timesover)
+                endtimer.start()
+        }
     }
 }
-
-
-
