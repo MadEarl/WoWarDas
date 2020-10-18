@@ -126,6 +126,9 @@ class MainActivity : AppCompatActivity(), LocationListener {
             tvGpsLocation.append("\nBreitengrad: " + location.latitude + "\nLängengrad: " + location.longitude)
             myLocation = location
             gotLocation = true
+            val sqlEntry = Entry(location.latitude.toFloat(), location.longitude.toFloat())
+            val sqlConnection = StorageSQL(this, null)
+            sqlConnection.addEntry(sqlEntry)
             if (timesover)
                 endtimer.start()
         }

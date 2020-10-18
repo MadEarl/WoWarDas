@@ -6,7 +6,24 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 
-class Entry(var latitude: Float, var longitude: Float, var time: Long)
+// wanted REAL for date, but values.put did not like it
+class Entry {
+    var latitude: Float
+    var longitude: Float
+    var time: Long
+
+    constructor(latitude: Float, longitude: Float, time: Long) {
+        this.latitude = latitude
+        this.longitude = longitude
+        this.time = time
+    }
+
+    constructor(latitude: Float, longitude: Float) {
+        this.latitude = latitude
+        this.longitude = longitude
+        this.time = System.currentTimeMillis() / 1000
+    }
+}
 
 class StorageSQL(context: Context, factory: SQLiteDatabase.CursorFactory?) :
     SQLiteOpenHelper(context, DATABASE_NAME, factory, DATABASE_VERSION) {
