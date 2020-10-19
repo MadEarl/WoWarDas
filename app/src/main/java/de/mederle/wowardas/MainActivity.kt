@@ -13,6 +13,7 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.provider.Settings
 import android.util.Log
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -26,8 +27,9 @@ class MainActivity : AppCompatActivity(), LocationListener {
     private var hasGps = false
     private lateinit var tvGpsLocation: TextView
     private lateinit var myLocation: Location
-    private var gotLocation: (Boolean) = false
-    private var timesover: (Boolean) = false
+    private var gotLocation: Boolean = false
+    private var timesover: Boolean = false
+    private var stay: Boolean = false
 
     // If button is tapped within running time, alternate view ist triggered instead of write and exit
     private val taptimer = object : CountDownTimer(7000, 1000) {
@@ -41,8 +43,10 @@ class MainActivity : AppCompatActivity(), LocationListener {
     private val endtimer = object : CountDownTimer(5000, 1000) {
         override fun onTick(millisUntilFinished: Long) {}
         override fun onFinish() {
-            this@MainActivity.finish()
-            exitProcess(0)
+            if (!stay) {
+                this@MainActivity.finish()
+                exitProcess(0)
+            }
         }
     }
 
@@ -93,6 +97,7 @@ class MainActivity : AppCompatActivity(), LocationListener {
         }
     }
 
+    @SuppressLint("ResourceType")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -105,6 +110,13 @@ class MainActivity : AppCompatActivity(), LocationListener {
                 getLocation()
         } else {
             requestPermissions(permissions, PERMISSION_REQUEST)
+        }
+
+        val showButton = findViewById<Button>(R.id.btn_show_locations)
+        showButton.setOnClickListener {
+            stay = true
+            val intent = Intent(this, LocationViewActivity::class.java)
+            startActivity(intent)
         }
     }
 

@@ -25,4 +25,5 @@
         android:layout_marginRight="12dp"
         android:padding="12dp"
         android:textSize="18sp" />
+
 </LinearLayout>
