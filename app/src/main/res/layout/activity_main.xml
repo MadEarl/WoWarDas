@@ -16,6 +16,17 @@
         android:text="Show Previous Locations" />
 
     <TextView
+        android:id="@+id/loc_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:lineSpacingExtra="12sp"
+        android:paddingVertical="24sp"
+        android:text="GPS-Koordinaten"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textStyle="bold" />
+
+    <TextView
         android:id="@+id/txt_location"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -25,5 +36,12 @@
         android:layout_marginRight="12dp"
         android:padding="12dp"
         android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/countdown_timer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="24sp"
+        android:textAlignment="center" />
 
 </LinearLayout>

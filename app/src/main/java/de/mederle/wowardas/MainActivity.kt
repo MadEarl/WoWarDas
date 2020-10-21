@@ -17,35 +17,29 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import kotlin.system.exitProcess
 
 private const val PERMISSION_REQUEST = 10
 
 class MainActivity : AppCompatActivity(), LocationListener {
 
-    lateinit var locationManager: LocationManager
     private var hasGps = false
     private lateinit var tvGpsLocation: TextView
-    private lateinit var myLocation: Location
-    private var gotLocation: Boolean = false
-    private var timesover: Boolean = false
+    private lateinit var tvCountdownTimer: TextView
     private var stay: Boolean = false
 
-    // If button is tapped within running time, alternate view ist triggered instead of write and exit
-    private val taptimer = object : CountDownTimer(7000, 1000) {
-        override fun onTick(millisUntilFinished: Long) {}
-        override fun onFinish() {
-            timesover = true
-        }
-    }
 
     // Show GPS coordinates for this time, then exit if button not tapped
-    private val endtimer = object : CountDownTimer(5000, 1000) {
-        override fun onTick(millisUntilFinished: Long) {}
+    private val endTimer = object : CountDownTimer(5000, 1000) {
+        override fun onTick(millisUntilFinished: Long) {
+            tvCountdownTimer.text = ""
+            tvCountdownTimer.append("Press button or app will terminate in " + (millisUntilFinished / 1000).toString())
+        }
+
         override fun onFinish() {
             if (!stay) {
-                this@MainActivity.finish()
-                exitProcess(0)
+                Log.d("WoWarDas", "endTimer: Now I should terminate.")
+                this@MainActivity.finishAndRemoveTask()
+                System.exit(0)
             }
         }
     }
@@ -97,17 +91,16 @@ class MainActivity : AppCompatActivity(), LocationListener {
         }
     }
 
-    @SuppressLint("ResourceType")
+    //@RequiresApi(Build.VERSION_CODES.R)
+    //@SuppressLint("ResourceType")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        taptimer.start()
-        tvGpsLocation = findViewById(R.id.txt_location)!!
-        tvGpsLocation.text = "GPS Location:\n"
+        tvGpsLocation = findViewById(R.id.txt_location)
+        tvCountdownTimer = findViewById(R.id.countdown_timer)
 
         if (checkPermission(permissions)) {
-            if (!gotLocation)
-                getLocation()
+            getLocation()
         } else {
             requestPermissions(permissions, PERMISSION_REQUEST)
         }
@@ -120,13 +113,15 @@ class MainActivity : AppCompatActivity(), LocationListener {
         }
     }
 
+    //@RequiresApi(Build.VERSION_CODES.R)
     @SuppressLint("MissingPermission")
     private fun getLocation() {
-        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         hasGps = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
         if (hasGps) {
             Log.d("WoWarDas", "hasGps")
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5f, this)
+            locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, this, mainLooper)
+
         } else {
             startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
         }
@@ -134,15 +129,12 @@ class MainActivity : AppCompatActivity(), LocationListener {
 
     override fun onLocationChanged(location: Location) {
         // tvGpsLocation = findViewById(R.id.txt_location)
-        if (!gotLocation) {
-            tvGpsLocation.append("\nBreitengrad: " + location.latitude + "\nLängengrad: " + location.longitude)
-            myLocation = location
-            gotLocation = true
-            val sqlEntry = Entry(location.latitude.toFloat(), location.longitude.toFloat())
-            val sqlConnection = StorageSQL(this, null)
-            sqlConnection.addEntry(sqlEntry)
-            if (timesover)
-                endtimer.start()
-        }
+        tvGpsLocation.text =
+            "Breitengrad: " + location.latitude + "\nLängengrad: " + location.longitude
+        val sqlEntry = Entry(location.latitude.toFloat(), location.longitude.toFloat())
+        val sqlConnection = StorageSQL(this, null)
+        sqlConnection.addEntry(sqlEntry)
+        Log.d("WoWarDas", "End Timer starting ...")
+        endTimer.start()
     }
 }

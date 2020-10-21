@@ -1,7 +1,6 @@
 package de.mederle.wowardas
 
 import android.os.Bundle
-import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
@@ -24,13 +23,13 @@ class LocationViewActivity : AppCompatActivity() {
         val returnList = mutableListOf<String>()
         val iterator = locationEntries.iterator()
         iterator.forEach {
-            var strung = ""
+            var strung = "\n"
             strung += "ID: " + it.id.toString() + "\n"
             strung += "Datum: " + Instant.ofEpochSecond(it.time).atZone(ZoneId.systemDefault())
                 .toLocalDateTime().toString() + "\n"
             strung += "Breitengrad: " + it.latitude.toString() + "\n"
             strung += "Längengrad: " + it.longitude.toString() + "\n"
-            Log.d("Location string: ", strung)
+            //Log.d("Location string: ", strung)
             returnList.add(strung)
         }
         return returnList
