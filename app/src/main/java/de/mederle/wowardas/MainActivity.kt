@@ -40,6 +40,8 @@ class MainActivity : AppCompatActivity(), LocationListener {
                 Log.d("WoWarDas", "endTimer: Now I should terminate.")
                 this@MainActivity.finishAndRemoveTask()
                 System.exit(0)
+            } else {
+                tvCountdownTimer.text = ""
             }
         }
     }
