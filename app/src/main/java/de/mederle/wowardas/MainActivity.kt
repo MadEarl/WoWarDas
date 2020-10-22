@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity(), LocationListener {
     private val endTimer = object : CountDownTimer(5000, 1000) {
         override fun onTick(millisUntilFinished: Long) {
             tvCountdownTimer.text = ""
-            tvCountdownTimer.append("Press button or app will terminate in " + (millisUntilFinished / 1000).toString())
+            tvCountdownTimer.append("Knopf drücken oder App beendet sich in " + (millisUntilFinished / 1000).toString())
         }
 
         override fun onFinish() {
@@ -80,14 +80,15 @@ class MainActivity : AppCompatActivity(), LocationListener {
                     } else {
                         Toast.makeText(
                             this,
-                            "Go to settings and enable the permission",
+                            "In Einstellungen Berechtigung erteilen",
                             Toast.LENGTH_SHORT
                         ).show()
                     }
                 }
             }
             if (allSuccess)
-                Toast.makeText(this, "All permissions granted!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Alle nötigen Berechtigungen vorhanden!", Toast.LENGTH_SHORT)
+                    .show()
         }
     }
 

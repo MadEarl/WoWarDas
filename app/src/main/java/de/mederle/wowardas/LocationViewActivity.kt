@@ -1,24 +1,35 @@
 package de.mederle.wowardas
 
 import android.os.Bundle
-import android.widget.ArrayAdapter
-import android.widget.ListView
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import java.time.Instant
-import java.time.ZoneId
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+
 
 class LocationViewActivity : AppCompatActivity() {
+
+    private lateinit var linearLayoutManager: LinearLayoutManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_location_view)
-        val listView = findViewById<ListView>(R.id.prv_loc_list)
-        val locAdapter =
-            ArrayAdapter(this, android.R.layout.simple_list_item_1, getPreviousLocationsArray())
-        listView.adapter = locAdapter
+        linearLayoutManager = LinearLayoutManager(this)
+        val recyclerView: RecyclerView = findViewById(R.id.loc_view)
+        recyclerView.layoutManager = this.linearLayoutManager
+
+        //val listView = findViewById<LinearLayout>(R.id.loc_layout)
+        val locAdapter = PreviousLocationsAdapter(StorageSQL(this, null).getAllEntriesCursor(this))
+        Log.d("WoWarDas", "locAdapter.count = " + locAdapter.itemCount)
+        // ArrayAdapter(this, android.R.layout.simple_list_item_1, getPreviousLocationsArray())
+        recyclerView.adapter = locAdapter
+        //val convertView = layoutInflater.inflate(R.layout.row_view, listView, false)
+        //for (i in 0 until (locAdapter.itemCount - 1)) {
+        //    locAdapter.getView(i, convertView, findViewById(R.id.loc_layout))
+        //}
     }
 
-    private fun getPreviousLocationsArray(): MutableList<String> {
+    /*private fun getPreviousLocationsArray(): MutableList<String> {
         val locationEntries = StorageSQL(this, null).getAllEntries(this)
         val returnList = mutableListOf<String>()
         val iterator = locationEntries.iterator()
@@ -33,7 +44,7 @@ class LocationViewActivity : AppCompatActivity() {
             returnList.add(strung)
         }
         return returnList
-    }
+    } */
 
 
 }

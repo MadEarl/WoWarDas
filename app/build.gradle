@@ -8,7 +8,7 @@ android {
     buildToolsVersion "30.0.2"
 
     defaultConfig {
-        applicationId "com.example.wowardas"
+        applicationId "de.mederle.wowardas"
         minSdkVersion 29
         targetSdkVersion 30
         versionCode 1

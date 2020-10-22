@@ -13,7 +13,7 @@
         android:layout_marginLeft="12dp"
         android:layout_marginTop="24dp"
         android:layout_marginRight="12dp"
-        android:text="Show Previous Locations" />
+        android:text="Gespeicherte Koordinaten anzeigen" />
 
     <TextView
         android:id="@+id/loc_header"

@@ -2,6 +2,7 @@ package de.mederle.wowardas
 
 import android.content.ContentValues
 import android.content.Context
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 
@@ -46,8 +47,8 @@ class StorageSQL(context: Context, factory: SQLiteDatabase.CursorFactory?) :
     override fun onCreate(db: SQLiteDatabase?) {
         val CREATE_LOCATION_TABLE = ("CREATE TABLE " + TABLE_NAME + " " +
                 "(" + COLUMN_ID + " INTEGER PRIMARY KEY, " +
-                "latitude FLOAT, longitude FLOAT, " +
-                "datetime INT)")
+                LAT + " FLOAT, " + LOT + " FLOAT, "
+                + DTT + " INT)")
         db!!.execSQL(CREATE_LOCATION_TABLE)
     }
 
@@ -57,11 +58,11 @@ class StorageSQL(context: Context, factory: SQLiteDatabase.CursorFactory?) :
 
     fun addEntry(entry: Entry) {
         val values = ContentValues()
-        values.put("latitude", entry.latitude)
-        values.put("longitude", entry.longitude)
-        values.put("datetime", entry.time)
+        values.put(LAT, entry.latitude)
+        values.put(LOT, entry.longitude)
+        values.put(DTT, entry.time)
         val db = this.writableDatabase
-        db.insert("location", null, values)
+        db.insert(TABLE_NAME, null, values)
         db.close()
     }
 
@@ -72,34 +73,54 @@ class StorageSQL(context: Context, factory: SQLiteDatabase.CursorFactory?) :
         val cursor = db.rawQuery("SELECT * FROM location ORDER BY _id DESC", null)
         if (cursor.moveToFirst()) {
             do {
-                val entry = Entry(cursor.getInt(cursor.getColumnIndex(COLUMN_ID)),
-                        cursor.getFloat(cursor.getColumnIndex("latitude")),
-                        cursor.getFloat(cursor.getColumnIndex("longitude")),
-                        cursor.getLong(cursor.getColumnIndex("datetime")))
+                val entry = Entry(
+                    cursor.getInt(cursor.getColumnIndex(COLUMN_ID)),
+                    cursor.getFloat(cursor.getColumnIndex(LAT)),
+                    cursor.getFloat(cursor.getColumnIndex(LOT)),
+                    cursor.getLong(cursor.getColumnIndex(DTT))
+                )
                 resultList.add(entry)
             } while (cursor.moveToNext())
         }
+        cursor.close()
         return resultList
+    }
+
+    fun getAllEntriesCursor(context: Context): Cursor {
+        val dbHelper = StorageSQL(context, null)
+        val db = dbHelper.readableDatabase
+        return db.rawQuery("SELECT * FROM $TABLE_NAME ORDER BY $COLUMN_ID DESC", null)
     }
 
     fun getEntryByID(context: Context, id: Int): Entry {
         val entry = Entry()
         val dbHelper = StorageSQL(context, null)
         val db = dbHelper.readableDatabase
-        val cursor = db.rawQuery("SELECT * FROM location where " + COLUMN_ID + " = " + id, null)
+        val cursor = db.rawQuery("SELECT * FROM $TABLE_NAME where $COLUMN_ID = $id", null)
         if (cursor.moveToFirst()) {
-            entry.id = cursor.getInt(cursor.getColumnIndex("_id"))
-            entry.latitude = cursor.getFloat(cursor.getColumnIndex("latitude"))
-            entry.longitude = cursor.getFloat(cursor.getColumnIndex("longitude"))
-            entry.time = cursor.getLong(cursor.getColumnIndex("datetime"))
+            entry.id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID))
+            entry.latitude = cursor.getFloat(cursor.getColumnIndex(LAT))
+            entry.longitude = cursor.getFloat(cursor.getColumnIndex(LOT))
+            entry.time = cursor.getLong(cursor.getColumnIndex(DTT))
         }
+        cursor.close()
         return entry
     }
 
+    fun deleteEntryByID(context: Context, id: Int) {
+        val dbHelper = StorageSQL(context, null)
+        val db = dbHelper.writableDatabase
+        val cursor = db.rawQuery("DELETE * FROM $TABLE_NAME WHERE $COLUMN_ID=$id", null)
+        cursor.close()
+    }
+
     companion object {
-        private val DATABASE_VERSION = 1
-        private val DATABASE_NAME = "locations.db"
-        val TABLE_NAME = "location"
-        val COLUMN_ID = "_id"
+        const val DATABASE_VERSION = 1
+        const val DATABASE_NAME = "locations.db"
+        const val TABLE_NAME = "location"
+        const val COLUMN_ID = "_id"
+        const val LAT = "latitude"
+        const val LOT = "longitude"
+        const val DTT = "datetime"
     }
 }
