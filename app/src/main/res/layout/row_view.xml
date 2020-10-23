@@ -18,34 +18,51 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_id"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ID: " />
+
+            <TextView
+                android:id="@+id/tv_lat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Breitengrad: " />
+
+            <TextView
+                android:id="@+id/tv_lot"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Längengrad: " />
+
+            <TextView
+                android:id="@+id/tv_dtt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="5"
+                android:text="Datum: " />
+
+        </LinearLayout>
 
         <TextView
-            android:id="@+id/tv_id"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="ID: " />
-
-        <TextView
-            android:id="@+id/tv_lat"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Breitengrad: " />
-
-        <TextView
-            android:id="@+id/tv_lot"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Längengrad: " />
-
-        <TextView
-            android:id="@+id/tv_dtt"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:maxLines="5"
-            android:text="Datum: " />
-
+            android:id="@+id/tv_opts"
+            android:layout_width="60dp"
+            android:layout_height="match_parent"
+            android:layout_weight=".5"
+            android:text="&#8942;"
+            android:textAlignment="center"
+            android:textAppearance="?android:textAppearanceLarge"
+            android:visibility="visible" />
     </LinearLayout>
 
 

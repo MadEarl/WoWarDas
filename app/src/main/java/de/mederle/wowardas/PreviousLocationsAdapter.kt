@@ -33,7 +33,8 @@ class PreviousLocationsAdapter(private val cursor: Cursor) :
                 Instant.ofEpochSecond(cursor.getLong(cursor.getColumnIndex(DTT))).atZone(ZoneId.systemDefault())
                         .toLocalDateTime().toString()
         )
-        holder.idView.tag = dbId
+        holder.itemView.tag = dbId
+        holder.optsView
     }
 
     override fun getItemCount(): Int {
@@ -45,6 +46,7 @@ class PreviousLocationsAdapter(private val cursor: Cursor) :
         val latView: TextView = itemView.findViewById(R.id.tv_lat)
         val lotView: TextView = itemView.findViewById(R.id.tv_lot)
         val dttView: TextView = itemView.findViewById(R.id.tv_dtt)
+        val optsView: TextView = itemView.findViewById(R.id.tv_opts)
 
         override fun onClick(v: View?) {
             TODO("Not yet implemented")

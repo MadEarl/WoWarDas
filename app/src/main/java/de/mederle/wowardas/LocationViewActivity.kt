@@ -13,6 +13,8 @@ class LocationViewActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_location_view)
+        setSupportActionBar(findViewById(R.id.loc_view_toolbar))
+        title = "WoWarDas Ortssammlung"
         linearLayoutManager = LinearLayoutManager(this)
         val recyclerView: RecyclerView = findViewById(R.id.loc_view)
         recyclerView.layoutManager = this.linearLayoutManager
