@@ -6,6 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import de.mederle.wowardas.StorageSQL.Companion.COLUMN_ID
+import de.mederle.wowardas.StorageSQL.Companion.DTT
+import de.mederle.wowardas.StorageSQL.Companion.LAT
+import de.mederle.wowardas.StorageSQL.Companion.LOT
 import java.time.Instant
 import java.time.ZoneId
 
@@ -21,13 +25,15 @@ class PreviousLocationsAdapter(private val cursor: Cursor) :
 
     override fun onBindViewHolder(holder: LocationHolder, position: Int) {
         cursor.moveToPosition(position)
-        holder.idView.append(cursor.getInt(0).toString())
-        holder.latView.append(cursor.getFloat(1).toString())
-        holder.lotView.append(cursor.getFloat(2).toString())
+        val dbId = cursor.getInt(cursor.getColumnIndex(COLUMN_ID))
+        holder.idView.append(dbId.toString())
+        holder.latView.append(cursor.getFloat(cursor.getColumnIndex(LAT)).toString())
+        holder.lotView.append(cursor.getFloat(cursor.getColumnIndex(LOT)).toString())
         holder.dttView.append(
-            Instant.ofEpochSecond(cursor.getLong(3)).atZone(ZoneId.systemDefault())
-                .toLocalDateTime().toString()
+                Instant.ofEpochSecond(cursor.getLong(cursor.getColumnIndex(DTT))).atZone(ZoneId.systemDefault())
+                        .toLocalDateTime().toString()
         )
+        holder.idView.tag = dbId
     }
 
     override fun getItemCount(): Int {

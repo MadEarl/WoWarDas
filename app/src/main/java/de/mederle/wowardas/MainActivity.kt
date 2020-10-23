@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity(), LocationListener {
     private lateinit var tvGpsLocation: TextView
     private lateinit var tvCountdownTimer: TextView
     private var stay: Boolean = false
-
+    private lateinit var locationManager: LocationManager
 
     // Show GPS coordinates for this time, then exit if button not tapped
     private val endTimer = object : CountDownTimer(5000, 1000) {
@@ -101,9 +101,10 @@ class MainActivity : AppCompatActivity(), LocationListener {
         setContentView(R.layout.activity_main)
         tvGpsLocation = findViewById(R.id.txt_location)
         tvCountdownTimer = findViewById(R.id.countdown_timer)
+        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
         if (checkPermission(permissions)) {
-            getLocation()
+            getLocation(locationManager)
         } else {
             requestPermissions(permissions, PERMISSION_REQUEST)
         }
@@ -118,12 +119,11 @@ class MainActivity : AppCompatActivity(), LocationListener {
 
     //@RequiresApi(Build.VERSION_CODES.R)
     @SuppressLint("MissingPermission")
-    private fun getLocation() {
-        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    private fun getLocation(locationManager: LocationManager) {
         hasGps = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
         if (hasGps) {
             Log.d("WoWarDas", "hasGps")
-            locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, this, mainLooper)
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500, 0f, this, mainLooper)
 
         } else {
             startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
@@ -137,6 +137,7 @@ class MainActivity : AppCompatActivity(), LocationListener {
         val sqlEntry = Entry(location.latitude.toFloat(), location.longitude.toFloat())
         val sqlConnection = StorageSQL(this, null)
         sqlConnection.addEntry(sqlEntry)
+        locationManager.removeUpdates(this)
         Log.d("WoWarDas", "End Timer starting ...")
         endTimer.start()
     }
