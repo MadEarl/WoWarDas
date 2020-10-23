@@ -1,9 +1,14 @@
 package de.mederle.wowardas
 
 import android.database.Cursor
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Adapter
+import android.widget.AdapterView
+import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import de.mederle.wowardas.StorageSQL.Companion.COLUMN_ID
@@ -13,7 +18,8 @@ import de.mederle.wowardas.StorageSQL.Companion.LOT
 import java.time.Instant
 import java.time.ZoneId
 
-class PreviousLocationsAdapter(private val cursor: Cursor) :
+
+class PreviousLocationsAdapter(private val cursor: Cursor, private val itemClickListener: AdapterView.OnItemClickListener) :
     RecyclerView.Adapter<PreviousLocationsAdapter.LocationHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LocationHolder {
@@ -35,6 +41,8 @@ class PreviousLocationsAdapter(private val cursor: Cursor) :
         )
         holder.itemView.tag = dbId
         holder.optsView
+        holder.bind(holder.itemView, itemClickListener)
+
     }
 
     override fun getItemCount(): Int {
@@ -49,7 +57,31 @@ class PreviousLocationsAdapter(private val cursor: Cursor) :
         val optsView: TextView = itemView.findViewById(R.id.tv_opts)
 
         override fun onClick(v: View?) {
-            TODO("Not yet implemented")
+            Log.d("WoWarDas", "Item clicked!")
+            val context = v?.context
+            val popup = PopupMenu(context, v)
+            popup.inflate(R.menu.menu_location_view)
+            popup.setOnMenuItemClickListener(PopupMenu.OnMenuItemClickListener(
+                    fun(item: MenuItem): Boolean {
+                        var result: Boolean
+                        when(item.itemId) {
+                            R.id.multi_select_gpx -> {
+                                Log.d("WoWarDas", "MultiSelect GPX selected")
+                                result = true
+                            }
+                            R.id.copy_clipboard -> result = true
+                            R.id.export_gpx -> result = true
+                            else -> result = false
+                        }
+                        return result
+                    }
+            ))
+            popup.show()
+        }
+        fun bind(holder: LocationHolder, itemClickListener: AdapterView.OnItemClickListener) {
+            itemView.setOnClickListener {
+                itemClickListener.onItemClick(holder.itemView)
+            }
         }
     }
 
