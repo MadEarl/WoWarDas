@@ -4,13 +4,13 @@
     <item
         android:id="@+id/copy_clipboard"
         android:orderInCategory="10"
-        android:title="@string/action_settings" />
+        android:title="in Zwischenablage kopieren" />
     <item
         android:id="@+id/export_gpx"
         android:orderInCategory="30"
-        android:title="@string/action_settings" />
+        android:title="in GPX-Datei exportieren" />
     <item
         android:id="@+id/multi_select_gpx"
         android:orderInCategory="50"
-        android:title="@string/action_settings" />
+        android:title="Multiselect für GPX" />
 </menu>

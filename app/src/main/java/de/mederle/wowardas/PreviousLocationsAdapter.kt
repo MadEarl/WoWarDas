@@ -1,13 +1,14 @@
 package de.mederle.wowardas
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.database.Cursor
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Adapter
-import android.widget.AdapterView
 import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -19,8 +20,8 @@ import java.time.Instant
 import java.time.ZoneId
 
 
-class PreviousLocationsAdapter(private val cursor: Cursor, private val itemClickListener: AdapterView.OnItemClickListener) :
-    RecyclerView.Adapter<PreviousLocationsAdapter.LocationHolder>() {
+class PreviousLocationsAdapter(private val cursor: Cursor) :
+        RecyclerView.Adapter<PreviousLocationsAdapter.LocationHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LocationHolder {
         val context = parent.context
@@ -32,16 +33,15 @@ class PreviousLocationsAdapter(private val cursor: Cursor, private val itemClick
     override fun onBindViewHolder(holder: LocationHolder, position: Int) {
         cursor.moveToPosition(position)
         val dbId = cursor.getInt(cursor.getColumnIndex(COLUMN_ID))
-        holder.idView.append(dbId.toString())
-        holder.latView.append(cursor.getFloat(cursor.getColumnIndex(LAT)).toString())
-        holder.lotView.append(cursor.getFloat(cursor.getColumnIndex(LOT)).toString())
-        holder.dttView.append(
-                Instant.ofEpochSecond(cursor.getLong(cursor.getColumnIndex(DTT))).atZone(ZoneId.systemDefault())
-                        .toLocalDateTime().toString()
-        )
+        holder.idView.text = "ID: $dbId"
+        holder.latView.text = "Breitengrad: ${cursor.getFloat(cursor.getColumnIndex(LAT))}"
+        holder.lotView.text = "Längengrad:  ${cursor.getFloat(cursor.getColumnIndex(LOT))}"
+        holder.dttView.text = "Datum: ${
+            Instant.ofEpochSecond(cursor.getLong(cursor.getColumnIndex(DTT)))
+                    .atZone(ZoneId.systemDefault()).toLocalDateTime()
+        }"
         holder.itemView.tag = dbId
-        holder.optsView
-        holder.bind(holder.itemView, itemClickListener)
+        //holder.optsView
 
     }
 
@@ -49,12 +49,16 @@ class PreviousLocationsAdapter(private val cursor: Cursor, private val itemClick
         return cursor.count
     }
 
-    inner class LocationHolder(v: View) : RecyclerView.ViewHolder(v), View.OnClickListener {
+    inner class LocationHolder(v: View) : RecyclerView.ViewHolder(v), View.OnClickListener, View.OnLongClickListener {
         val idView: TextView = itemView.findViewById(R.id.tv_id)
         val latView: TextView = itemView.findViewById(R.id.tv_lat)
         val lotView: TextView = itemView.findViewById(R.id.tv_lot)
         val dttView: TextView = itemView.findViewById(R.id.tv_dtt)
-        val optsView: TextView = itemView.findViewById(R.id.tv_opts)
+        //val optsView: TextView = itemView.findViewById(R.id.tv_opts)
+
+        init {
+            v.setOnClickListener(this)
+        }
 
         override fun onClick(v: View?) {
             Log.d("WoWarDas", "Item clicked!")
@@ -63,59 +67,33 @@ class PreviousLocationsAdapter(private val cursor: Cursor, private val itemClick
             popup.inflate(R.menu.menu_location_view)
             popup.setOnMenuItemClickListener(PopupMenu.OnMenuItemClickListener(
                     fun(item: MenuItem): Boolean {
-                        var result: Boolean
-                        when(item.itemId) {
+                        Log.d("WoWarDas", "Clickable item clicked")
+                        return when (item.itemId) {
                             R.id.multi_select_gpx -> {
                                 Log.d("WoWarDas", "MultiSelect GPX selected")
-                                result = true
+                                true
                             }
-                            R.id.copy_clipboard -> result = true
-                            R.id.export_gpx -> result = true
-                            else -> result = false
+                            R.id.copy_clipboard -> {
+                                val locationText = "Breitengrad: ${cursor.getFloat(cursor.getColumnIndex(LAT))}\nLängengrad: ${cursor.getFloat(cursor.getColumnIndex(LOT))}"
+                                val clipboard: ClipboardManager = v?.context?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                val clip: ClipData = ClipData.newPlainText("simple Text", locationText)
+                                clipboard.setPrimaryClip(clip)
+                                true
+                            }
+                            R.id.export_gpx -> {
+
+
+                                true
+                            }
+                            else -> false
                         }
-                        return result
                     }
             ))
             popup.show()
         }
-        fun bind(holder: LocationHolder, itemClickListener: AdapterView.OnItemClickListener) {
-            itemView.setOnClickListener {
-                itemClickListener.onItemClick(holder.itemView)
-            }
+
+        override fun onLongClick(v: View?): Boolean {
+            TODO("Not yet implemented")
         }
     }
-
-
 }
-
-
-//(private val context: Context, private val cursor: Cursor): BaseAdapter() {
-//    override fun getCount(): Int {
-//        return cursor.count
-//    }
-/*
-
-    override fun getItem(position: Int): Entry {
-        cursor.moveToPosition(position)
-        return  Entry(cursor.getInt(0), cursor.getFloat(1), cursor.getFloat(2), cursor.getLong(3))
-    }
-
-    override fun getItemId(position: Int): Long {
-        return cursor.getInt(0).toLong()
-    }
-
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        val inflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        inflater.inflate(R.layout.row_view, parent, false)
-        cursor.moveToPosition(position)
-        val tvId: TextView = convertView!!.findViewById(R.id.tv_id)
-        val tvLat: TextView = convertView.findViewById(R.id.tv_lat)
-        val tvLot: TextView = convertView.findViewById(R.id.tv_lot)
-        val tvDtt: TextView = convertView.findViewById(R.id.tv_dtt)
-        tvId.text = cursor.getInt(0).toString()
-        tvLat.text = cursor.getFloat(1).toString()
-        tvLot.text = cursor.getFloat(2).toString()
-        tvDtt.text = cursor.getLong(3).toString()
-        return convertView
-    }
-}*/
