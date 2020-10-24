@@ -23,6 +23,8 @@ import java.time.ZoneId
 class PreviousLocationsAdapter(private val cursor: Cursor) :
         RecyclerView.Adapter<PreviousLocationsAdapter.LocationHolder>() {
 
+    private val selectedItems = arrayListOf<Int>()
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LocationHolder {
         val context = parent.context
         val inflater = LayoutInflater.from(context)
@@ -32,19 +34,69 @@ class PreviousLocationsAdapter(private val cursor: Cursor) :
 
     override fun onBindViewHolder(holder: LocationHolder, position: Int) {
         cursor.moveToPosition(position)
-        val dbId = cursor.getInt(cursor.getColumnIndex(COLUMN_ID))
-        holder.idView.text = "ID: $dbId"
-        holder.latView.text = "Breitengrad: ${cursor.getFloat(cursor.getColumnIndex(LAT))}"
-        holder.lotView.text = "Längengrad:  ${cursor.getFloat(cursor.getColumnIndex(LOT))}"
+        val entry = Entry(cursor.getInt(cursor.getColumnIndex(COLUMN_ID)),
+                cursor.getFloat(cursor.getColumnIndex(LAT)),
+                cursor.getFloat(cursor.getColumnIndex(LOT)),
+                cursor.getLong(cursor.getColumnIndex(DTT)))
+        holder.idView.text = "ID: ${entry.id}"
+        holder.latView.text = "Breitengrad: ${entry.latitude}"
+        holder.lotView.text = "Längengrad:  ${entry.longitude}"
         holder.dttView.text = "Datum: ${
-            Instant.ofEpochSecond(cursor.getLong(cursor.getColumnIndex(DTT)))
+            Instant.ofEpochSecond(entry.time)
                     .atZone(ZoneId.systemDefault()).toLocalDateTime()
         }"
-        holder.itemView.tag = dbId
+        holder.itemView.tag = position
+        if (selectedItems.contains(position)) {
+            holder.itemView.alpha = 0.3f
+        } else {
+            holder.itemView.alpha = 1.0f
+        }
     }
 
     override fun getItemCount(): Int {
         return cursor.count
+    }
+
+    override fun getItemId(position: Int): Long {
+        return cursor.position.toLong()
+    }
+
+    private fun selectItem(holder: LocationHolder, id: Int) {
+        if (selectedItems.contains(id)) {
+            selectedItems.remove(id)
+            Log.d("WoWarDas", "Unselecting id $id = holder ${holder.itemView.tag}")
+            holder.itemView.alpha = 1.0f
+        } else {
+            selectedItems.add(id)
+            Log.d("WoWarDas", "Selecting id $id = holder ${holder.itemView.tag}")
+            holder.itemView.alpha = 0.3f
+        }
+    }
+
+    private fun getEntryByID(cursor: Cursor, id: Int): Entry {
+        val entry = Entry()
+        if (cursor.moveToPosition(id)) {
+            entry.id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID))
+            entry.latitude = cursor.getFloat(cursor.getColumnIndex(LAT))
+            entry.longitude = cursor.getFloat(cursor.getColumnIndex(LOT))
+            entry.time = cursor.getLong(cursor.getColumnIndex(DTT))
+        }
+        return entry
+    }
+
+    private fun makeClip(selectedIds: ArrayList<Int>): String {
+        val clipBuilder = StringBuilder()
+        for (id in selectedIds) {
+            val entry = getEntryByID(cursor, id)
+            clipBuilder.append("ID: ${entry.id}\nBreitengrad: ${entry.latitude}\n")
+            clipBuilder.append("Längengrad: ${entry.longitude}\n")
+            clipBuilder.append("Datum: ${
+                Instant.ofEpochSecond(entry.time)
+                        .atZone(ZoneId.systemDefault()).toLocalDateTime()
+            }\n")
+            clipBuilder.append("-----")
+        }
+        return clipBuilder.toString()
     }
 
     inner class LocationHolder(v: View) : RecyclerView.ViewHolder(v), View.OnClickListener, View.OnLongClickListener {
@@ -55,6 +107,7 @@ class PreviousLocationsAdapter(private val cursor: Cursor) :
 
         init {
             v.setOnClickListener(this)
+            // setHasStableIds(true)
         }
 
         override fun onClick(v: View?) {
@@ -66,12 +119,13 @@ class PreviousLocationsAdapter(private val cursor: Cursor) :
                     fun(item: MenuItem): Boolean {
                         Log.d("WoWarDas", "Clickable item clicked")
                         return when (item.itemId) {
-                            R.id.multi_select_gpx -> {
-                                Log.d("WoWarDas", "MultiSelect GPX selected")
+                            R.id.select_unselect -> {
+                                selectItem(this, this.itemView.tag as Int)
+                                Log.d("WoWarDas", "Selected: ${selectedItems.joinToString()}")
                                 true
                             }
                             R.id.copy_clipboard -> {
-                                val locationText = "Breitengrad: ${cursor.getFloat(cursor.getColumnIndex(LAT))}\nLängengrad: ${cursor.getFloat(cursor.getColumnIndex(LOT))}"
+                                val locationText = makeClip(selectedItems)
                                 val clipboard: ClipboardManager = v?.context?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                 val clip: ClipData = ClipData.newPlainText("simple Text", locationText)
                                 clipboard.setPrimaryClip(clip)

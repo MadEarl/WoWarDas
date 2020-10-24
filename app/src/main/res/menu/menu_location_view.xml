@@ -10,7 +10,7 @@
         android:orderInCategory="30"
         android:title="in GPX-Datei exportieren" />
     <item
-        android:id="@+id/multi_select_gpx"
+        android:id="@+id/select_unselect"
         android:orderInCategory="50"
-        android:title="Multiselect für GPX" />
+        android:title="Auswählen/Abwählen" />
 </menu>

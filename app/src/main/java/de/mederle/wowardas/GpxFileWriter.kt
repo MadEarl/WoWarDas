@@ -7,9 +7,9 @@ import java.time.ZoneId
 class GpxFileWriter(private val outputFile: File, private val wayPointList: ArrayList<Entry>) {
     private val xmlHeader = "<?xml version=\"1.0\" encoding=\"UTF-8\">"
     private val gpxHeader = "<gpx version=\"1.1\" creator=\"WoWarDas\">"
-    private lateinit var gpxMetaData: String
+    private var gpxMetaData: String
     private val gpxFooter = "</gpx>\n"
-    private lateinit var gpxData: String
+    private var gpxData: String
 
     init {
         val metaDataBuilder = StringBuilder()

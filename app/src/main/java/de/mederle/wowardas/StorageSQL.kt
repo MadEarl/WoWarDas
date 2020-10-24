@@ -92,20 +92,6 @@ class StorageSQL(context: Context, factory: SQLiteDatabase.CursorFactory?) :
         return db.rawQuery("SELECT * FROM $TABLE_NAME ORDER BY $COLUMN_ID DESC", null)
     }
 
-    fun getEntryByID(context: Context, id: Int): Entry {
-        val entry = Entry()
-        val dbHelper = StorageSQL(context, null)
-        val db = dbHelper.readableDatabase
-        val cursor = db.rawQuery("SELECT * FROM $TABLE_NAME where $COLUMN_ID = $id", null)
-        if (cursor.moveToFirst()) {
-            entry.id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID))
-            entry.latitude = cursor.getFloat(cursor.getColumnIndex(LAT))
-            entry.longitude = cursor.getFloat(cursor.getColumnIndex(LOT))
-            entry.time = cursor.getLong(cursor.getColumnIndex(DTT))
-        }
-        cursor.close()
-        return entry
-    }
 
     fun deleteEntryByID(context: Context, id: Int) {
         val dbHelper = StorageSQL(context, null)
