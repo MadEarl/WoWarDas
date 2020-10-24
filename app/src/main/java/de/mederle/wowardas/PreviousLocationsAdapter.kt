@@ -41,8 +41,6 @@ class PreviousLocationsAdapter(private val cursor: Cursor) :
                     .atZone(ZoneId.systemDefault()).toLocalDateTime()
         }"
         holder.itemView.tag = dbId
-        //holder.optsView
-
     }
 
     override fun getItemCount(): Int {
@@ -54,7 +52,6 @@ class PreviousLocationsAdapter(private val cursor: Cursor) :
         val latView: TextView = itemView.findViewById(R.id.tv_lat)
         val lotView: TextView = itemView.findViewById(R.id.tv_lot)
         val dttView: TextView = itemView.findViewById(R.id.tv_dtt)
-        //val optsView: TextView = itemView.findViewById(R.id.tv_opts)
 
         init {
             v.setOnClickListener(this)

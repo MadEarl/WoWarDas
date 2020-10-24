@@ -21,6 +21,5 @@ class LocationViewActivity : AppCompatActivity() {
         val locAdapter = PreviousLocationsAdapter(StorageSQL(this, null).getAllEntriesCursor(this))
         Log.d("WoWarDas", "locAdapter.count = " + locAdapter.itemCount)
         recyclerView.adapter = locAdapter
-        //locAdapter.LocationHolder(recyclerView).onClick(recyclerView)
     }
 }

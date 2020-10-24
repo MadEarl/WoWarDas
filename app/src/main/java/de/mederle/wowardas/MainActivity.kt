@@ -131,9 +131,8 @@ class MainActivity : AppCompatActivity(), LocationListener {
     }
 
     override fun onLocationChanged(location: Location) {
-        // tvGpsLocation = findViewById(R.id.txt_location)
         tvGpsLocation.text =
-            "Breitengrad: " + location.latitude + "\nLängengrad: " + location.longitude
+            "Breitengrad: ${location.latitude}\nLängengrad: ${location.longitude}"
         val sqlEntry = Entry(location.latitude.toFloat(), location.longitude.toFloat())
         val sqlConnection = StorageSQL(this, null)
         sqlConnection.addEntry(sqlEntry)
