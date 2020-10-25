@@ -4,8 +4,12 @@ import java.time.Instant
 import java.time.ZoneId
 
 class GpxFileWriter(private val wayPointList: MutableList<Entry>) {
-    private val xmlHeader = "<?xml version=\"1.0\" encoding=\"UTF-8\">"
-    private val gpxHeader = "<gpx version=\"1.1\" creator=\"WoWarDas\">"
+    private val xmlHeader = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+    private val gpxHeader = "<gpx version=\"1.1\" creator=\"WoWarDas\"\n" +
+            "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+            "  xmlns=\"http://www.topografix.com/GPX/1/0\"\n" +
+            "  xsi:schemaLocation=\"http://www.topografix.com/GPX/1/0\n" +
+            "  http://www.topografix.com/GPX/1/0/gpx.xsd\">\n"
     private var gpxMetaData: String
     private val gpxFooter = "</gpx>\n"
     private var gpxData: String
@@ -29,6 +33,7 @@ class GpxFileWriter(private val wayPointList: MutableList<Entry>) {
         val gpxBuilder = StringBuilder()
         gpxBuilder.append(xmlHeader)
         gpxBuilder.append(gpxHeader)
+        gpxBuilder.append(gpxMetaData)
         for (entry in wayPointList) {
             gpxBuilder.append("        <wpt lat=\"${entry.latitude}\" lon=\"${entry.longitude}\">\n")
             gpxBuilder.append(
