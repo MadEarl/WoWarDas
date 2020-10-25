@@ -83,7 +83,7 @@ class MainActivity : AppCompatActivity(), LocationListener {
                         Toast.makeText(
                             this,
                             "In Einstellungen Berechtigung erteilen",
-                            Toast.LENGTH_SHORT
+                            Toast.LENGTH_LONG
                         ).show()
                     }
                 }
@@ -91,6 +91,7 @@ class MainActivity : AppCompatActivity(), LocationListener {
             if (allSuccess)
                 Toast.makeText(this, "Alle nötigen Berechtigungen vorhanden!", Toast.LENGTH_SHORT)
                     .show()
+            getLocation(locationManager)
         }
     }
 

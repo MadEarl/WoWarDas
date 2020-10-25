@@ -148,11 +148,21 @@ class PreviousLocationsAdapter(private val cursor: Cursor) :
                             true
                         }
                         R.id.copy_clipboard -> {
-                            val locationText = makeClip(selectedItems)
-                            val clipboard: ClipboardManager =
-                                v?.context?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                            val clip: ClipData = ClipData.newPlainText("simple Text", locationText)
-                            clipboard.setPrimaryClip(clip)
+                            if (selectedItems.size < 1) {
+                                Log.d("WoWarDas", "No item selected for export.")
+                                Toast.makeText(
+                                    v?.context,
+                                    "Kein Eintrag gewählt!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } else {
+                                val locationText = makeClip(selectedItems)
+                                val clipboard: ClipboardManager =
+                                    v?.context?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                val clip: ClipData =
+                                    ClipData.newPlainText("simple Text", locationText)
+                                clipboard.setPrimaryClip(clip)
+                            }
                             true
                         }
                         R.id.export_gpx -> {
@@ -179,7 +189,6 @@ class PreviousLocationsAdapter(private val cursor: Cursor) :
                                 )
                                 // further processing in LocationViewActivity.onActivityResult()
                             }
-
                             true
                         }
                         else -> false
