@@ -17,6 +17,7 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import kotlin.system.exitProcess
 
 private const val PERMISSION_REQUEST = 10
 
@@ -39,7 +40,7 @@ class MainActivity : AppCompatActivity(), LocationListener {
             if (!stay) {
                 Log.d("WoWarDas", "endTimer: Now I should terminate.")
                 this@MainActivity.finishAndRemoveTask()
-                System.exit(0)
+                exitProcess(0)
             } else {
                 tvCountdownTimer.text = ""
             }
