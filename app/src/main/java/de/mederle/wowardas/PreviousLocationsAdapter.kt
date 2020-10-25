@@ -1,5 +1,6 @@
 package de.mederle.wowardas
 
+import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -11,6 +12,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
 import android.widget.TextView
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.recyclerview.widget.RecyclerView
 import de.mederle.wowardas.StorageSQL.Companion.COLUMN_ID
 import de.mederle.wowardas.StorageSQL.Companion.DTT
@@ -18,12 +22,13 @@ import de.mederle.wowardas.StorageSQL.Companion.LAT
 import de.mederle.wowardas.StorageSQL.Companion.LOT
 import java.time.Instant
 import java.time.ZoneId
-
+import java.util.*
 
 class PreviousLocationsAdapter(private val cursor: Cursor) :
         RecyclerView.Adapter<PreviousLocationsAdapter.LocationHolder>() {
 
-    private val selectedItems = arrayListOf<Int>()
+    private val CREATE_FILE = 148
+    val selectedItems = arrayListOf<Int>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LocationHolder {
         val context = parent.context
@@ -90,16 +95,34 @@ class PreviousLocationsAdapter(private val cursor: Cursor) :
             val entry = getEntryByID(cursor, id)
             clipBuilder.append("ID: ${entry.id}\nBreitengrad: ${entry.latitude}\n")
             clipBuilder.append("Längengrad: ${entry.longitude}\n")
-            clipBuilder.append("Datum: ${
-                Instant.ofEpochSecond(entry.time)
+            clipBuilder.append(
+                "Datum: ${
+                    Instant.ofEpochSecond(entry.time)
                         .atZone(ZoneId.systemDefault()).toLocalDateTime()
-            }\n")
-            clipBuilder.append("-----")
+                }\n"
+            )
+            clipBuilder.append("-------\n")
         }
         return clipBuilder.toString()
     }
 
-    inner class LocationHolder(v: View) : RecyclerView.ViewHolder(v), View.OnClickListener, View.OnLongClickListener {
+    private fun makeSelectedEntryList(selectedIds: ArrayList<Int>): MutableList<Entry> {
+        val resultList = mutableListOf<Entry>()
+        for (id in selectedIds) {
+            val entry = getEntryByID(cursor, id)
+            resultList.add(entry)
+        }
+        return resultList
+    }
+
+    fun getSelectedItems(itemList: ArrayList<Entry>) {
+        for (item in selectedItems) {
+            itemList.add(getEntryByID(cursor, item))
+        }
+    }
+
+    inner class LocationHolder(v: View) : RecyclerView.ViewHolder(v), View.OnClickListener,
+        View.OnLongClickListener {
         val idView: TextView = itemView.findViewById(R.id.tv_id)
         val latView: TextView = itemView.findViewById(R.id.tv_lat)
         val lotView: TextView = itemView.findViewById(R.id.tv_lot)
@@ -116,29 +139,52 @@ class PreviousLocationsAdapter(private val cursor: Cursor) :
             val popup = PopupMenu(context, v)
             popup.inflate(R.menu.menu_location_view)
             popup.setOnMenuItemClickListener(PopupMenu.OnMenuItemClickListener(
-                    fun(item: MenuItem): Boolean {
-                        Log.d("WoWarDas", "Clickable item clicked")
-                        return when (item.itemId) {
-                            R.id.select_unselect -> {
-                                selectItem(this, this.itemView.tag as Int)
-                                Log.d("WoWarDas", "Selected: ${selectedItems.joinToString()}")
-                                true
-                            }
-                            R.id.copy_clipboard -> {
-                                val locationText = makeClip(selectedItems)
-                                val clipboard: ClipboardManager = v?.context?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                val clip: ClipData = ClipData.newPlainText("simple Text", locationText)
-                                clipboard.setPrimaryClip(clip)
-                                true
-                            }
-                            R.id.export_gpx -> {
-
-
-                                true
-                            }
-                            else -> false
+                fun(item: MenuItem): Boolean {
+                    Log.d("WoWarDas", "Clickable item clicked")
+                    return when (item.itemId) {
+                        R.id.select_unselect -> {
+                            selectItem(this, this.itemView.tag as Int)
+                            Log.d("WoWarDas", "Selected: ${selectedItems.joinToString()}")
+                            true
                         }
+                        R.id.copy_clipboard -> {
+                            val locationText = makeClip(selectedItems)
+                            val clipboard: ClipboardManager =
+                                v?.context?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                            val clip: ClipData = ClipData.newPlainText("simple Text", locationText)
+                            clipboard.setPrimaryClip(clip)
+                            true
+                        }
+                        R.id.export_gpx -> {
+                            if (selectedItems.size < 1) {
+                                Log.d("WoWarDas", "No item selected for export.")
+                                Toast.makeText(
+                                    v?.context,
+                                    "Kein Eintrag gewählt!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } else {
+                                // need to store in global container as onActivityResult is out of this scope
+                                val exportedLocationsBucket: ExportedLocationsBucket =
+                                    ExportedLocationsBucket.instance
+                                exportedLocationsBucket.locationsToExport =
+                                    makeSelectedEntryList(selectedItems)
+                                val fileUriIntent = ActivityResultContracts.CreateDocument()
+                                    .createIntent(v!!.context, "WoWarDas.gpx")
+                                startActivityForResult(
+                                    v.context as Activity,
+                                    fileUriIntent,
+                                    CREATE_FILE,
+                                    null
+                                )
+                                // further processing in LocationViewActivity.onActivityResult()
+                            }
+
+                            true
+                        }
+                        else -> false
                     }
+                }
             ))
             popup.show()
         }
