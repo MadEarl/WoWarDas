@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:backgroundTintMode="add"
+    android:fitsSystemWindows="true"
+    tools:context=".LocationViewActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/loc_view_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:elevation="4dp"
+        android:text="@string/wowardas_locations"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar" />
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/loc_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/loc_view_toolbar"
+        android:scrollbars="vertical" />
+
+</RelativeLayout>
