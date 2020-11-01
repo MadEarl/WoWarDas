@@ -10,7 +10,7 @@ This app is supposed to help accomplish that while not interfering with riding o
 phone. Android 10 phones have a PTT button that, on my Ulefone Armor 9, can be configured to 
 start any app. Like this one.
 
-![Start Screen](../images/locationscreen.png)
+![Start Screen](/images/locationscreen.png)
 
 This app does one thing: It records the current location, and unless the user presses a button 
 to list all the previous locations, stores the location and quits. So, on one push of a button,
@@ -30,8 +30,8 @@ Prerequisites: Android 10, will not work with older releases.
 
 License: See COPYING. This code is licensed under the GPL v3.
 
-![Waypoint Listing](../images/waypointlisting.png)
+![Waypoint Listing](/images/waypointlisting.png)
 
-![Context Menu](../images/contextmenu.png)
+![Context Menu](/images/contextmenu.png)
 
-![Edit Description](../images/editdescription.png)
+![Edit Description](/images/editdescription.png)
