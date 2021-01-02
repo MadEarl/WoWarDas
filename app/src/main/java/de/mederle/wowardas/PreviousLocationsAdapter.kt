@@ -48,8 +48,13 @@ class PreviousLocationsAdapter(val context: Context, val locations: ArrayList<En
                 holder.itemView.context.getString(R.string.longitude) + entry.longitude
         holder.dttView.text = holder.itemView.context.getString(R.string.timestamp) +
                 Instant.ofEpochSecond(entry.time).atZone(ZoneId.systemDefault()).toLocalDateTime()
-        if (entry.comment != "") holder.cmtView.text =
-                context.getString(R.string.comment_loc) + entry.comment
+        if (entry.comment != "") {
+            holder.cmtView.text =
+                    context.getString(R.string.comment_loc) + entry.comment
+        } else {
+            holder.cmtView.text =
+                    context.getString(R.string.comment_loc) + ""
+        }
         holder.itemView.tag = position
         if (selectedItems.contains(entry.id)) {
             holder.cardWrapper.setBackgroundResource(R.color.purple_200)
@@ -104,7 +109,7 @@ class PreviousLocationsAdapter(val context: Context, val locations: ArrayList<En
         val clipBuilder = StringBuilder()
         for (id in selectedIds) {
             val entry = MainActivity.storageSQL.getEntryByID(id)
-            val commentString = if (entry.comment != "") entry.comment.toString() else "ID: " + entry.id.toString()
+            val commentString = if (entry.comment != null) entry.comment.toString() else "ID: " + entry.id.toString()
             clipBuilder.append(
                     commentString + "\n" + context.getString(
                             R.string.latitude
