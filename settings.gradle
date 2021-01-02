@@ -1,2 +1,2 @@
-include ':app'
+include ':WoWarDas'
 rootProject.name = "WoWarDas"
